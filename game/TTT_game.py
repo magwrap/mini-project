@@ -127,13 +127,13 @@ class TTTGame:
             else:
                 return
 
-    def run(self):
+    def run(self, test = False):
         def restart_game():
             if self.sett.RESTART_DELAY < 0:
                 pygame.quit()
                 sys.exit()
             self.restart_time = pygame.time.get_ticks() + self.sett.RESTART_DELAY
-            self.state = GameState.DELAYED_RESTART
+            self.state = GameState.INITIAL
 
         while True:
             match self.state:
@@ -158,23 +158,30 @@ class TTTGame:
                     self.state = GameState.RUNNING
                 case GameState.RUNNING:
                     if self.sett.FAST_MODE:
-                        pygame.event.post(pygame.event.Event(pygame.USEREVENT))
+                    # if True:
+                        print("fast mode")
+                        pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONDOWN))
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             pygame.quit()
                             sys.exit()
 
                         if (event.type == pygame.MOUSEBUTTONDOWN or
-                            event.type == pygame.KEYDOWN or
-                                self.sett.FAST_MODE):
+                            event.type == pygame.KEYDOWN or 
+                            # True
+                                self.sett.FAST_MODE
+                                ):
                             try:
                                 time_start = time.perf_counter_ns()
                                 (x, y) = self.players[self.curr_p_index].make_a_move(0)
                                 time_end = time.perf_counter_ns()
+
                                 self.player_time[self.curr_p_index] -= time_end - time_start
                                 if self.player_time[self.curr_p_index] <= 0:
                                     raise ValueError("All time budget already used!")
+                                
                                 print(f"\"{self.players[self.curr_p_index].name}\" made the move: ({x},{y})")
+
                                 self.register_move(x, y)
                             except Exception as e:
                                 print(f"Exception occurred during make_a_move():")
@@ -209,6 +216,10 @@ class TTTGame:
 
                 case GameState.ENDED_WON:
                     print(f"\"{self.players[self.curr_p_index].name}\" wins the game")
+                    with open("bot_outcome.txt", "a") as outcome:
+                        outcome.write(f"{self.players[self.curr_p_index].name}\n");
+                    with open("game_state.txt", "a") as state:
+                        state.write(f"{self.state}\n")
                     restart_game()
                 case GameState.ENDED_DRAW:
                     print("It's a draw!")

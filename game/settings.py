@@ -23,7 +23,7 @@ class Settings:
         self.WINNING_LINE_COLOR = (0, 200, 0)
 
         # Game settings
-        self.FAST_MODE = False
+        self.FAST_MODE = True 
         self.SHUFFLE_PLAYERS_ON_START = False
         self.CHANCE_OF_BLOCKED_ON_START = 0.05
         self.RESTART_DELAY = 0
